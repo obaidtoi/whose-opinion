@@ -25,13 +25,14 @@ from reportlab.platypus import (Image, KeepTogether, ListFlowable, ListItem, Par
                                 SimpleDocTemplate, Spacer, Table, TableStyle)
 
 TITLE = "Whose opinion is it? A pilot on model priors in LLM opinion dynamics"
-SUBTITLE = "Obaid Tamboli · pilot study · November 2026"
+SUBTITLE = ("Obaid Tamboli · pilot study · November 2026 · code and data: "
+            "<a href='https://github.com/obaidtoi/whose-opinion' color='#5b6169'><u>github.com/obaidtoi/whose-opinion</u></a>")
 NA = "not identified"
 
 # kept in step with sim.py by hand (importing sim would pull in the API client)
 DESCRIPTION = "a home heating device that runs on electricity and can replace a gas boiler"
 P_EDGE = 0.35
-START_SD = (10 / 45) ** 0.5  # sd of z for starting views -2..+2
+START_SD = 0.48  # observed sd of the free agents at the start (0.47 to 0.48)
 
 
 # ---------------------------------------------------------------- fonts / styles
@@ -131,7 +132,7 @@ def leak_line(leak):
     else:
         s += f"{conf_txt}."
     if "heat pump" in likely.lower():
-        s += " So it can work out from the description what the twin is; the twin hides the name, not the technology."
+        s += " So it can work out from the description what the twin is. The twin hides the name and leaves the technology recognisable."
     elif likely:
         s += " It did not link the name to heat pumps."
     return s
@@ -170,12 +171,19 @@ def results_text(S):
             p.append("I have no interval for at least one of the two, so I cannot judge whether the gap is noise.")
     else:
         missing = [n for n, v in (("heat pumps", br), ("Varn units", bt)) if v is None]
-        p.append(f"The default view b is {NA} for {' and '.join(missing)} (probably because β is too "
-                 f"close to zero to separate b from the intercept), so Δb is {NA}.")
+        p.append(f"Because β is close to zero, b cannot be separated from the intercept for "
+                 f"{' and '.join(missing)}, so Δb is {NA}.")
     paras.append(" ".join(p))
 
     # flip points
     p = []
+    if min(real.get("s") or 0, twin.get("s") or 0) >= 0.85:
+        paras.append("Because the free agents barely moved, I do not read flip points from these runs. With the "
+                     "committed agents set aside, the free agents already started slightly below zero, so a "
+                     "“crossing” would only reflect where they began.")
+        F_skip = True
+    else:
+        F_skip = False
     step = min((y - x for x, y in zip(F, F[1:])), default=None)
     for topic, label in (("real", "heat pumps"), ("twin", "Varn units")):
         obs, prd = get(fc, topic, "observed"), get(fc, topic, "predicted")
@@ -185,7 +193,7 @@ def results_text(S):
             bits = [f"f up to {fmt_f(fmax)}"] if fmax is not None else []
             bits += [note] if note else []
             s = f"With {label} the group did not flip within the tested range" + (
-                f" ({'; '.join(bits)})." if bits else ".")
+                f" ({', '.join(bits)})." if bits else ".")
         elif F and abs(obs - F[0]) < 1e-9:
             s = f"With {label} the mean was already at or below zero at f = {fmt_f(obs)}, so there was nothing to flip."
         else:
@@ -214,23 +222,28 @@ def results_text(S):
                 s += (" That is consistent with seeing no flip." if ok else
                       " Yet no flip was observed, so the linear model misses something here.")
         p.append(s)
+    if F_skip:
+        p = []
     dfp, dfo = delta.get("fc_predicted"), delta.get("fc_observed")
-    if dfp is None and dfo is None:
-        p.append(f"The real − twin difference Δf<sub>c</sub> is {NA}.")
+    if F_skip:
+        pass
+    elif dfp is None and dfo is None:
+        p.append(f"The difference between real and twin, Δf<sub>c</sub>, is {NA}.")
     else:
-        head = "The real − twin difference in the flip point is Δf<sub>c</sub> = "
+        head = "The difference in the flip point between real and twin is Δf<sub>c</sub> = "
         if dfp is not None and dfo is not None:
             p.append(f"{head}{fmt(dfp, True)} from the fitted model and {fmt(dfo, True)} from the observed crossings.")
         elif dfp is not None:
-            p.append(f"{head}{fmt(dfp, True)} from the fitted model; from the observed crossings it is {NA}.")
+            p.append(f"{head}{fmt(dfp, True)} from the fitted model, and from the observed crossings it is {NA}.")
         else:
-            p.append(f"{head}{fmt(dfo, True)} from the observed crossings; from the fitted model it is {NA}.")
+            p.append(f"{head}{fmt(dfo, True)} from the observed crossings, and from the fitted model it is {NA}.")
         fcr = get(fc, "real", "predicted")
         if dfp is not None and fcr and 0 <= dfp <= fcr:
             p.append(f"If the twin is a fair no-prior baseline, about {100 * dfp / fcr:.0f}% of the minority "
                      f"needed to flip the heat-pump discussion is there to overcome the model’s prior. "
                      f"I would not lean on this figure before more seeds and models are in.")
-    paras.append(" ".join(p))
+    if p:
+        paras.append(" ".join(p))
 
     # does the 5-round linear prediction match the observed final means?
     p = []
@@ -281,7 +294,7 @@ def results_text(S):
             s += f" Its fitted default is b = {fmt(syn['b'], True)}."
         s += (" So a change of wording alone made little difference here." if abs(gap) < 0.10 else
               " So wording alone moves the result by about this much, which is also a rough size for the "
-              "noise in the real–twin comparison.")
+              "noise in the comparison of real and twin.")
         paras.append(s)
     else:
         paras.append("The synonym run was not available, so I have no wording check in this summary.")
@@ -302,7 +315,7 @@ def polarisation_table(S, st):
     rows = [[Paragraph(h, st["cellh"]) for h in head]]
     for f in F:
         rows.append([Paragraph(fmt_f(f), st["cell"])] + [
-            Paragraph(fmt(_pol(S, t, f, k)) if _pol(S, t, f, k) is not None else "–", st["cell"])
+            Paragraph(fmt(_pol(S, t, f, k)) if _pol(S, t, f, k) is not None else "n/a", st["cell"])
             for t in ("real", "twin") for k in ("sd", "split")])
     tbl = Table(rows, colWidths=[14 * mm] + [13.8 * mm] * 4, hAlign="LEFT")
     tbl.setStyle(TableStyle([
@@ -352,8 +365,8 @@ def polarisation_text(S):
     all_sd = [v for v in all_sd if v is not None]
     if all_sd and all(abs(v - START_SD) < 0.12 for v in all_sd):
         out.append(f"All of these are close to the starting spread (sd {fmt(START_SD)}, views from −2 to +2). "
-                   "So the groups neither converged to a consensus nor split into two camps; mostly, "
-                   "opinions stayed where they began.")
+                   "So the groups neither converged to a consensus nor split into two camps, and "
+                   "opinions mostly stayed where they began.")
     elif all_sd and max(all_sd) < START_SD - 0.12:
         out.append(f"The spread fell below the starting value (sd {fmt(START_SD)}), so opinions moved "
                    "toward each other.")
@@ -370,12 +383,12 @@ def key_finding(S):
         return None
     if min(s) < 0.85:
         return None
-    return (f"<b>Main result.</b> The agents barely changed their minds. Each round they kept about "
-            f"{100 * min(s):.0f}–{100 * max(s):.0f}% of their previous view, gave little weight to their "
-            f"neighbours, and showed no measurable pull toward a default view (β ≈ {fmt(beta[0])} and "
+    return (f"<b>With the reminder.</b> The agents barely changed their minds. Each round they kept about "
+            f"{100 * min(s):.0f}% to {100 * max(s):.0f}% of their previous view, gave little weight to their "
+            f"neighbours, and showed no positive pull toward a default view (β ≈ {fmt(beta[0])} and "
             f"{fmt(beta[1])}). With no pull there is nothing to compare between the real topic and its twin, so "
             "the prior and the flip point are not identified in this design. In my prompt every agent was told "
-            "its own current rating each round, which is the first suspect; section 5 removes it.")
+            "its own current rating each round. That reminder is the first suspect, and section 5 removes it.")
 
 
 def ablation(S, A, st):
@@ -387,13 +400,13 @@ def ablation(S, A, st):
         row = [label]
         for src, t in ((S, "real"), (S, "twin"), (A, "real"), (A, "twin")):
             v = get(src, "fit", t, key)
-            row.append(fmt(v, signed=key == "b") if v is not None else "–")
+            row.append(fmt(v, signed=key == "b") if v is not None else "n/a")
         rows.append(row)
     for f in (0.0, 0.25):
         row = [f"final mean, f = {fmt_f(f)}"]
         for src, t in ((S, "real"), (S, "twin"), (A, "real"), (A, "twin")):
             v = f_key(get(src, "final_mean", t) or {}, f)
-            row.append(fmt(v, signed=True) if v is not None else "–")
+            row.append(fmt(v, signed=True) if v is not None else "n/a")
         rows.append(row)
     rows = [[Paragraph(str(c), st["cell"]) for c in r] for r in rows]
     tbl = Table(rows, colWidths=[38 * mm] + [33 * mm] * 4, hAlign="LEFT")
@@ -411,7 +424,7 @@ def ablation(S, A, st):
         if drop > 0.1:
             text.append(f"Without the reminder the agents became much less stubborn (<i>s</i> fell from about "
                         f"{fmt(sum(s_main) / 2)} to {fmt(sum(s_abl) / 2)}). So a large part of the stubbornness "
-                        "came from my prompt, not from the model.")
+                        "came from my prompt.")
         elif drop > 0.03:
             text.append(f"Without the reminder the agents were somewhat less stubborn (<i>s</i> about "
                         f"{fmt(sum(s_main) / 2)} → {fmt(sum(s_abl) / 2)}).")
@@ -424,12 +437,12 @@ def ablation(S, A, st):
             br, bt = get(A, "fit", "real", "b"), get(A, "fit", "twin", "b")
             cr, ct = get(A, "fit", "real", "ci", "b"), get(A, "fit", "twin", "ci", "b")
             text.append(f"A pull toward a default appears (β = {fmt(b_abl[0])} for heat pumps, {fmt(b_abl[1])} "
-                        f"for the twin), as strong as or stronger than the pull from neighbours. The default views "
+                        f"for the twin), stronger than the pull from neighbours. The default views "
                         f"are b = {fmt(br, True) if br is not None else NA} {fmt_ci(cr) if cr else ''} for heat "
                         f"pumps and {fmt(bt, True) if bt is not None else NA} {fmt_ci(ct) if ct else ''} for the "
                         "twin.")
             if cr and ct and cr[0] > ct[1]:
-                text.append(f"The intervals do not overlap: the real name carries a more favourable default "
+                text.append(f"The intervals do not overlap, so the real name carries a more favourable default "
                             f"than the identical made-up technology (Δb = {fmt(br - bt, True)}). The twin is not "
                             "neutral either, which fits the leak check and a general positive lean.")
         else:
@@ -437,14 +450,14 @@ def ablation(S, A, st):
     sds =[get(A, "polarisation", t) for t in ("real", "twin")]
     sds = [v.get("sd") for d in sds if d for v in d.values() if v and v.get("sd") is not None]
     if sds and max(sds) < START_SD - 0.12:
-        text.append(f"Opinions also converged: the final spread was sd {fmt(min(sds))}–{fmt(max(sds))}, down "
+        text.append(f"Opinions also converged. The final spread was sd {fmt(min(sds))} to {fmt(max(sds))}, down "
                     f"from {fmt(START_SD)} at the start, so the groups moved toward a consensus near the "
                     "model’s default.")
     m = f_key(get(A, "final_mean", "real") or {}, 0.25)
     if m is not None and m > 0:
-        text.append(f"With a quarter of the agents committed against heat pumps, the group still ended in "
-                    f"favour (mean z = {fmt(m, True)}); in the main run the same minority flipped it.")
-    text.append("These runs use one seed and two minority sizes, so they show a direction, not a size.")
+        text.append(f"With a quarter of the agents committed against heat pumps, the free agents still moved toward heat pumps and ended in "
+                    f"favour (mean z = {fmt(m, True)}), having started slightly below zero.")
+    text.append("These runs use one seed and two minority sizes, so they show the direction of these effects and leave the size open.")
     return tbl, " ".join(text)
 
 
@@ -543,47 +556,55 @@ def build(S, base, out, fig_scale=1.0):
         s_abl = (get(A0, "fit", "real", "s") + get(A0, "fit", "twin", "s")) / 2
         br, bt = get(A0, "fit", "real", "b"), get(A0, "fit", "twin", "b")
         story.append(Paragraph(
-            f"<b>In short.</b> (1) A small prompt detail decided the dynamics: when agents were reminded of their "
+            f"<b>Summary.</b> (1) A small prompt detail decided the dynamics. When agents were reminded of their "
             f"own rating each round they kept about {100 * s_main:.0f}% of their view and nothing else could be "
-            f"measured; without the reminder this fell to about {100 * s_abl:.0f}%. (2) The agents then drifted "
+            f"measured. Without the reminder this fell to about {100 * s_abl:.0f}%. (2) The agents then drifted "
             f"toward a default view and toward consensus, and that default was more favourable for “heat "
             f"pumps” (b = {fmt(br, True)}) than for the identical made-up “Varn units” "
             f"(b = {fmt(bt, True)}). (3) A quarter of agents committed against heat pumps did not flip the group. "
-            f"One model, one seed, 16 agents: a direction, not a size.", st["body"]))
+            + (f"(4) A blind re-reading of {S['_stance']['n_rated']} posts matched the agents’ own ratings "
+               f"closely (weighted κ = {fmt(S['_stance']['weighted_kappa'])}). "
+               if S.get("_stance") else "")
+            + "With one model, one seed and 16 agents, these results show the direction of each effect and leave "
+              "its size open.", st["body"]))
         story.append(Spacer(1, 4))
 
-    H("1. What I wanted to know")
-    P("The ECHO project studies three outcomes of opinion dynamics in the energy transition: whether a "
+    H("1. Background and research question")
+    P("Earlier work found that LLM agents drift toward a default view of their own (Chuang et al., 2024), "
+      "and that this pull explains much of how they change their minds (Probine et al., 2026). A committed "
+      "minority can tip a population of LLM agents, but only on arbitrary choices with no default "
+      "(Ashery et al., 2025). "
+      "For opinion dynamics in the energy transition, the ECHO project asks whether a "
       "group reaches consensus, whether it polarises, and whether a committed minority can tip it. When LLM "
       "agents are used to simulate these outcomes, part of what we see comes from the agents reading each "
-      "other, and part may come from what the model already thinks about the topic. In this pilot I look "
-      "at all three in one small set-up: where the group’s mean opinion settles, how spread out the "
+      "other, and part may come from what the model already thinks about the topic. In this pilot one small set-up "
+      "covers all three. I record where the group’s mean opinion settles, how spread out the "
       "final opinions are, and how large an opposing minority must be to flip the group. I ran the same "
-      "discussion about a home-heating technology twice: once calling it “heat pumps”, and once "
+      "discussion about a home-heating technology twice, once calling it “heat pumps”, and once "
       "calling it “Varn units”, a made-up name with the same description, so the model has no "
       "prior attached to the name. My working claim is that the difference between the real topic and its "
       "twin measures how much of the outcome comes from the model’s prior rather than from the "
       "interaction.")
 
-    H("2. Setup")
+    H("2. Experimental setup")
     counts = ", ".join(str(round(f * n)) for f in F)
     shares = ", ".join(fmt_f(f) for f in F)
     if total is not None and failed is not None:
-        calls = (f"{total:,} agent calls in total, {failed:,} failed"
-                 + (f" ({100 * failed / total:.1f}%)" if total else "")
-                 + "; a failed call leaves that agent’s rating unchanged for the round.")
+        calls = (f"{total:,} agent calls in total, none failed." if failed == 0 else
+                 f"{total:,} agent calls in total, {failed:,} failed ({100 * failed / total:.1f}%). "
+                 "A failed call leaves that agent’s rating unchanged for the round.")
     else:
-        calls = f"Calls in total: {total if total is not None else NA}; failed: {failed if failed is not None else NA}."
+        calls = f"Calls in total: {total if total is not None else NA}, failed: {failed if failed is not None else NA}."
     story.append(bullets([
         f"Model: <font name='Sans'>{escape(str(S.get('model', NA)))}</font>, a free model on OpenRouter, "
         f"temperature 0.7.",
         f"Agents: {n}, each with a short persona (a nurse, a farmer, a landlord, ...) in a German town. "
         f"Free agents start at views spread from −2 to +2. Rounds: {S.get('rounds', NA)}.",
-        f"Graph: random (Erdős–Rényi) with edge probability {P_EDGE}, redrawn until connected. "
+        f"Graph: random (Erdős-Rényi) with edge probability {P_EDGE}, redrawn until connected. "
         f"Each round an agent reads its neighbours’ latest posts, writes a new post and gives a rating "
         f"from −3 to +3.",
-        f"Topics, all described as “{DESCRIPTION}”: <i>real</i> = heat pumps; <i>twin</i> = Varn "
-        f"units; <i>synonym</i> = air-source heat systems (only without a minority, as a wording check).",
+        f"Topics, all described as “{DESCRIPTION}”: <i>real</i> = heat pumps, <i>twin</i> = Varn "
+        f"units, <i>synonym</i> = air-source heat systems (only without a minority, as a wording check).",
         f"Committed minority (always −3): {counts} of {n} agents, i.e. f = {shares}.",
         f"Random seeds: {', '.join(map(str, seeds)) or NA}. A seed fixes the graph, the starting "
         f"views and which agents are committed.",
@@ -591,7 +612,7 @@ def build(S, base, out, fig_scale=1.0):
         leak_line(S.get("leak_check")),
     ], st))
 
-    H("3. The model")
+    H("3. Model and estimation")
     P("I describe each free agent’s update with a linear rule. Opinions are on the scale "
       "<i>z</i> = rating/3, from −1 to +1.")
     story += [
@@ -609,9 +630,9 @@ def build(S, base, out, fig_scale=1.0):
         ("<i>a</i>", "weight on the neighbours"),
         ("<i>m<sub>i</sub></i>(<i>t</i>)", "mean opinion of <i>i</i>’s neighbours, committed ones included"),
         ("β", "weight on the model’s default"),
-        ("<i>b</i>", "the model’s default view: where an agent drifts with nobody to talk to"),
-        ("<i>f</i>, <i>c</i>", "share of committed agents; their fixed opinion (−1)"),
-        ("<i>z</i>*, <i>f<sub>c</sub></i>", "mean-field resting point; share at which <i>z</i>* crosses "
+        ("<i>b</i>", "the model’s default view, where an agent drifts with nobody to talk to"),
+        ("<i>f</i>, <i>c</i>", "share of committed agents, and their fixed opinion (−1)"),
+        ("<i>z</i>*, <i>f<sub>c</sub></i>", "mean-field resting point, and the share at which <i>z</i>* crosses "
          "zero (exists only if <i>b</i> &gt; 0)"),
     ]
     cells = [Paragraph(f"{a} <font color='#5b6169'>{b}</font>", st["cell"]) for a, b in sym]
@@ -656,7 +677,7 @@ def build(S, base, out, fig_scale=1.0):
 
     ptab, ptxt = polarisation_table(S, st), polarisation_text(S)
     if ptab is not None:
-        cap = Paragraph("Table 2. Spread of the free agents’ final opinions: sd of <i>z</i>, and split = "
+        cap = Paragraph("Table 2. Spread of the free agents’ final opinions, given as the sd of <i>z</i> and as the split, the "
                         "share of agents on the minority’s side of the mean.", st["cap"])
         right = Paragraph(ptxt or "", st["body"])
         block = Table([[[cap, ptab], right]], colWidths=[72 * mm, 98 * mm])
@@ -667,38 +688,76 @@ def build(S, base, out, fig_scale=1.0):
     A = S.get("_ablation")
     sec = 5
     if A:
-        H("5. Does the prompt set the stubbornness?")
-        P("I repeated the runs at f = 0 and f = 0.25 with one change: agents saw their own last post, but "
-          "not their numeric rating. Everything else, including the graph and starting views, was the same.")
+        H("5. Ablation: removing the stance reminder")
+        P("I repeated the runs at f = 0 and f = 0.25 with one change. Agents saw their own last post but "
+          "not their numeric rating. Everything else, including the graph and starting views, was the same "
+          "(280 further calls, none failed).")
         tbl, txt = ablation(S, A, st)
         story += [Paragraph("Table 3. Main run (agents reminded of their rating) vs. no reminder.", st["cap"]),
                   tbl, Spacer(1, 6)]
         P(txt)
         sec = 6
 
-    H(f"{sec}. What this does and does not show")
-    P("This is a pilot. It shows that the comparison can be run end to end and gives first numbers. "
-      "It does not establish how large the prior effect is in general. The main limits:")
+    V = S.get("_stance")
+    if V and V.get("n_rated"):
+        H(f"{sec}. Validation of stance ratings")
+        jm = ", ".join(V.get("judge_model") or [])
+        same = jm == V.get("agent_model")
+        who = ("A second pass of the same model as the agents" if same else
+               f"A second model (<font name='Sans'>{escape(jm)}</font>)")
+        P(f"Every reply had a post and a self-reported rating. {who} read posts blind and rated the stance "
+          f"of each from −3 to +3. I sampled {V['n_sampled']} posts evenly over the rating levels the agents "
+          f"used (−2 to +2). Of these, {V['n_rated']} were rated and the rest failed on the free tier.")
+        g = V.get("mean_gap")
+        gn, gp = V.get("mean_gap_when_self_negative"), V.get("mean_gap_when_self_positive")
+        sent = (f"The two agree closely (Spearman ρ = {fmt(V['spearman'])}, weighted κ = "
+                f"{fmt(V['weighted_kappa'])}). Of the posts, {100 * V['exact']:.0f}% match exactly and "
+                f"{100 * V['within_1']:.0f}% are within one point. ")
+        if g is not None and abs(g) < 0.05:
+            sent += "There is no overall shift between the two. "
+        elif g is not None:
+            sent += (f"On average the text reads {fmt(abs(g))} points "
+                     f"{'more favourable' if g > 0 else 'less favourable'} than the agents rated themselves. ")
+        if gn is not None and gp is not None:
+            if gn > 0.1 and gp < -0.1:
+                sent += (f"But both sides wrote slightly more moderate posts than their numbers. Relative to the rating, the text read "
+                         f"{fmt(gn, True)} points for agents who rated themselves against and {fmt(gp, True)} for "
+                         "those in favour. A small gap like this between post and rating is worth testing with human coding. ")
+            else:
+                sent += (f"For agents that rated themselves against, the gap is {fmt(gn, True)}, and for those in "
+                         f"favour, {fmt(gp, True)}. ")
+        sent += ("This checks the measurement only. The judging model can share the agents’ habits, "
+                 "and human coding is the real reference.")
+        P(sent)
+        fp = resolve(V.get("figure"), base)
+        story.append(KeepTogether(figure(fp, 80 * mm, 60 * mm, st,
+                                         "Figure 4. Agent's own rating against the stance read blind from its "
+                                         "post. The dashed line is perfect agreement.")))
+        sec += 1
+
+    H(f"{sec}. Limitations")
+    P("This pilot shows that the comparison can be run end to end and gives first numbers. "
+      "It does not establish how large the prior effect is in general. The main limits follow.")
     story.append(bullets([
         "One free model. Other models may hold different priors about heat pumps, or none.",
-        f"Few seeds ({len(seeds)}) and only {n} agents, so the intervals are wide and graph effects are "
-        "not averaged out.",
+        (f"One seed and only {n} agents" if len(seeds) == 1 else f"{len(seeds)} seeds and only {n} agents")
+        + ", so the intervals are wide and graph effects are not averaged out.",
         f"{S.get('rounds', 5)} rounds is short. The groups are most likely still moving, so the final means "
         "are not steady states, and the flip points are read from a transient.",
-        "The ratings are self-reported by the agents. I did not score the text of the posts, which may say "
-        "something different.",
+        "The opinions are the agents’ own ratings. Where I checked them against the text, the check used a "
+        "language model and no human coding.",
         "Ratings are whole numbers from −3 to +3, which makes small changes invisible and bends the "
         "linear fit near the ends of the scale.",
-        "The made-up name may leak: from the description alone the model can guess it is a heat pump, so "
+        "The made-up name may leak. From the description alone the model can guess it is a heat pump, so "
         "the twin is a weaker baseline than it looks.",
-        "Free-tier rate limits meant small runs, and failed calls left some ratings unchanged.",
+        "Free-tier rate limits kept the runs small.",
     ], st))
 
-    H(f"{sec + 1}. Next steps")
+    H(f"{sec + 1}. Future work")
     story.append(bullets([
         "Repeat with several models and more seeds, to see whether Δb is stable or model-specific.",
-        "Score the post text with a separate classifier as a second measure of opinion, and compare it "
-        "with the self-reported ratings.",
+        "Have a sample of posts coded by people, and use it to test both the agents’ ratings and the "
+        "blind language-model labels.",
         "Raise the minority step by step and then lower it again. If the group does not come back on the "
         "way down, that is hysteresis and a sign of real tipping rather than a shift of the resting point.",
     ], st))
@@ -707,8 +766,9 @@ def build(S, base, out, fig_scale=1.0):
     for r in [
         "Chuang, Y.-S. et al. (2024). Simulating opinion dynamics with networks of LLM-based agents. "
         "<i>Findings of NAACL 2024</i>.",
-        "Probine et al. (2026). arXiv:2606.18276. (A bias term explains much of LLM opinion dynamics.)",
-        "Ju et al. (2024). arXiv:2412.05093. (Sensitivity of LLM agent simulations to prompt wording.)",
+        "Probine, C. et al. (2026). Characterizing opinion evolution of networked LLMs. arXiv:2606.18276.",
+        "Ju, D. et al. (2024). Sense and sensitivity: Evaluating the simulation of social dynamics via "
+        "large language models. arXiv:2412.05093.",
         "Ashery, A. F., Aiello, L. M. &amp; Baronchelli, A. (2025). Emergent social conventions and "
         "collective bias in LLM populations. <i>Science Advances</i>.",
     ]:
@@ -721,7 +781,7 @@ def build(S, base, out, fig_scale=1.0):
         canvas.saveState()
         canvas.setFont("Sans", 7.5)
         canvas.setFillColor(GREY)
-        canvas.drawString(20 * mm, 11 * mm, "Whose opinion is it? — pilot note")
+        canvas.drawString(20 * mm, 11 * mm, "Whose opinion is it? Pilot note")
         canvas.drawRightString(A4[0] - 20 * mm, 11 * mm, str(doc.page))
         canvas.restoreState()
 
@@ -745,6 +805,9 @@ def main():
     abl = Path(args.ablation)
     if abl.exists():
         S["_ablation"] = json.loads(abl.read_text(encoding="utf-8"))
+    sv = Path("results/stance_check/summary.json")
+    if sv.exists():
+        S["_stance"] = json.loads(sv.read_text(encoding="utf-8"))
     for scale in (1.0, 0.85, 0.7):  # shrink the figures if the note runs past four pages
         n = build(S, summary.parent, Path(args.out), fig_scale=scale)
         if n <= 4:

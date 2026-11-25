@@ -1,0 +1,31 @@
+\documentclass[11pt]{article}
+\input{letter_style}
+% Which position you prefer (same sentence appears in both letters):
+\newcommand{\preference}{the Modelling and Simulation position}
+
+\begin{document}
+\letterhead
+
+\textbf{Application: PhD position ``Modelling and Simulation of Opinion Dynamics'' (ECHO Modelling)}
+
+Dear Prof.\ Lehnhoff,
+
+At Deloitte I learned that an LLM agent comes with opinions of its own. We built agents that checked company policies against regulations. LLMs tend to agree, so we deliberately pushed ours toward a conservative ``non-compliant'' lean. We then measured how far verdicts tilted one way regardless of the evidence, checked that they held when a clause was reworded, and compared them with human reviewers. A verdict counted only if it came from the clause and not from the agent.
+
+At Bennett, Coleman \& Co., publisher of The Times of India, I built a system that combines name-matching algorithms with web-searching LLM agents. The agents trace an advertiser's parent company and sister brands to decide whether two differently named advertisers are the same client.
+
+ECHO meets the same problem at the scale of a society. If networks of LLM agents are to tell us when support for heat pumps or wind farms reaches consensus, polarises or tips, how much of the outcome comes from the agents talking to each other, and how much from the model? If an agent's opinion moves as $z_{t+1} = s\,z_t + a\,m_t + \beta\,b$, the neighbours enter through $a$ and the model's own default through $\beta b$. Only the first should reach an energy system model.
+
+Earlier work found that LLM agents drift toward a default view of their own (Chuang et al., 2024), and that this pull explains much of how they change their minds (Probine et al., 2026). A committed minority can tip a population of LLM agents, but only on arbitrary choices with no default (Ashery et al., 2025). Before applying, I tested whether the default depends on the topic and whether it holds against a minority, in a pilot called \href{https://github.com/obaidtoi/whose-opinion/blob/main/reports/pilot_report.pdf}{\emph{Whose opinion is it?}} Sixteen agents on a free model discussed heat pumps and, as a control, an identical made-up technology. The first result was humbling. A single prompt line reminding agents of their own rating nearly froze them. Without it, they drifted toward a default that was warmer for heat pumps than for the twin ($b = 0.35$ vs.\ $0.14$ on a scale from $-1$ to $+1$). A quarter of the agents campaigning against heat pumps did not pull the group below zero. The control also leaked, since the model guessed that the made-up name referred to a heat pump.
+
+The leak means the next twin must hide the technology as well as its name. The minority did not tip the group, so I would raise it and then lower it to see whether it ever does. And one model on one seed must become several before any of this reaches an energy system model.
+
+I hold a 4-year BS in Data Science Engineering (minor in EECS) from IISER Bhopal (2024) but no Master's, and can clarify equivalence. At Respirer Living Sciences I built calibration models for low-cost sensors. I work daily in Python and in English. I was a teaching assistant for Data Science in Practice at IISER and would gladly support teaching in the MSc Digitalized Energy Systems. I am applying for both ECHO positions and prefer \preference.
+
+I would welcome the chance to discuss this with you.
+
+Yours sincerely,\\[0.3em]
+\myname
+
+{\small\color{soft}Enclosures: CV, letter of recommendation, BS degree certificate and transcript}
+\end{document}

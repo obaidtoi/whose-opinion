@@ -1,0 +1,84 @@
+{
+  "judge_model": [
+    "baidu/ernie-5.5-flash-preview:free"
+  ],
+  "agent_model": "baidu/ernie-5.5-flash-preview:free",
+  "n_pairs_available": 903,
+  "n_sampled": 225,
+  "n_rated": 180,
+  "spearman": 0.9417881338498001,
+  "weighted_kappa": 0.9271575613618369,
+  "exact": 0.7944444444444444,
+  "within_1": 0.9833333333333333,
+  "mean_gap": 0.0,
+  "mean_gap_when_self_negative": 0.2465753424657534,
+  "mean_gap_when_self_positive": -0.25,
+  "mean_abs_self": 1.1833333333333333,
+  "mean_abs_judge": 1.0166666666666666,
+  "confusion": [
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      32,
+      7,
+      2,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      25,
+      7,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      3,
+      34,
+      2,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      37,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      1,
+      15,
+      15,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ]
+  ],
+  "figure": "results/stance_check/figures/confusion.png"
+}

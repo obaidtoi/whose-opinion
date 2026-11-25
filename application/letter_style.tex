@@ -1,0 +1,25 @@
+% Shared look for both motivation letters. Compile with pdfLaTeX (Overleaf default).
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage[british]{babel}
+\usepackage[a4paper,top=2.0cm,bottom=1.8cm,left=2.3cm,right=2.3cm]{geometry}
+\usepackage{microtype}
+\usepackage{xcolor}
+\usepackage[hidelinks]{hyperref}
+\usepackage{parskip}
+\setlength{\parskip}{0.55em}
+\pagestyle{empty}
+\definecolor{ink}{HTML}{1F2933}
+\definecolor{soft}{HTML}{5B6169}
+
+% --- personal details (edit once) ---
+\newcommand{\myname}{Obaid Tamboli}
+\newcommand{\mycontact}{Mumbai, India \,·\, \href{mailto:tamboliobaid@gmail.com}{tamboliobaid@gmail.com} \,·\, +91 7066799011 \,·\, \href{https://obaidtambo.github.io/}{obaidtambo.github.io} \,·\, \href{https://www.linkedin.com/in/obaidtamboli/}{linkedin.com/in/obaidtamboli}}
+\newcommand{\mydate}{Mumbai, \today}
+
+% The recipient address is left out: the letter is sent as an e-mail attachment.
+% If the page still overflows, change [11pt] to [10pt] in the \documentclass line of the letter.
+\newcommand{\letterhead}{%
+  {\color{ink}\Large\bfseries \myname}\hfill{\small\color{soft}\mydate}\\[2pt]
+  {\small\color{soft}\mycontact\par}\vspace{0.8em}}

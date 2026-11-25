@@ -1,0 +1,29 @@
+\documentclass[11pt]{article}
+\input{letter_style}
+% Which position you prefer (same sentence appears in both letters):
+\newcommand{\preference}{the Modelling and Simulation position}
+
+\begin{document}
+\letterhead
+
+\textbf{Application: PhD position ``Data-Driven Analysis of Opinion Dynamics'' (ECHO Data)}
+
+Dear Prof.\ Lehnhoff,
+
+At Bennett, Coleman \& Co., publisher of The Times of India, I build pipelines that read print and digital advertisements with vision and language models. I also built a system that combines name-matching algorithms with web-searching LLM agents, which trace an advertiser's parent company and sister brands to decide whether two differently named advertisers are the same client. I trust a number from such a pipeline only after checking it. That habit comes from Deloitte, where I built LLM agents that checked company policies against regulations. We measured how far an agent tilted toward one verdict regardless of the evidence, checked that its verdicts held when a clause was reworded, and compared them with human reviewers.
+
+Whether a wind farm meets support or resistance depends on the opinions people form in exchange with others. ECHO's LLM agents are useful only if real data says how they should behave. Before applying, I ran a small pilot called \href{https://github.com/obaidtoi/whose-opinion/blob/main/reports/pilot_report.pdf}{\emph{Whose opinion is it?}} Sixteen LLM agents discussed heat pumps and an identical made-up technology. Without a reminder of their own rating, they drifted toward the model's default, which was warmer for heat pumps than for the twin. A committed quarter campaigning against heat pumps did not pull the group below zero. When the same model read 180 of their posts blind, its stance labels matched the agents' own ratings (weighted $\kappa = 0.93$), though the text was slightly more moderate than the numbers. That check compared the model with itself, so the agents still have to be calibrated against people.
+
+That calibration is what I would like to work on. I would start where the pilot stopped, using language models to label stance in real discussion of heat pumps and wind farms and checking those labels against human coding rather than against the model itself. I would then link that discussion to public data such as the Core Energy Market Data Register. That is again a problem of matching messy names, close to the matching I do at work.
+
+At Deloitte I also fitted panel and logistic regressions for credit risk stress testing, validated deployed models under Basel and IFRS standards, and built pipelines in BigQuery and PySpark. At Respirer Living Sciences I developed calibration models for low-cost sensors.
+
+I hold a 4-year BS in Data Science Engineering (minor in EECS) from IISER Bhopal (2024) but no Master's, and can clarify equivalence. English is my working language. I was a teaching assistant for Data Science in Practice at IISER and would gladly teach in the MSc Digitalized Energy Systems. I am applying for both ECHO positions and prefer \preference.
+
+I would welcome the chance to discuss this with you.
+
+Yours sincerely,\\[0.3em]
+\myname
+
+{\small\color{soft}Enclosures: CV, letter of recommendation, BS degree certificate and transcript}
+\end{document}

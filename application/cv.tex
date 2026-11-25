@@ -1,0 +1,113 @@
+% CV of Obaid Tamboli. Compile with pdfLaTeX (Overleaf default).
+% Wording follows the original CV; additions are only facts confirmed by Obaid.
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage[a4paper,top=1.8cm,bottom=1.8cm,left=2.1cm,right=2.1cm]{geometry}
+\usepackage{microtype}
+\usepackage{xcolor}
+\usepackage{tabularx}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage[hidelinks]{hyperref}
+
+\definecolor{ink}{HTML}{1F2933}
+\definecolor{soft}{HTML}{5B6169}
+
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0pt}
+
+\titleformat{\section}{\color{ink}\large\bfseries}{}{0pt}{}[\vspace{-0.6ex}{\color{soft}\titlerule[0.4pt]}]
+\titlespacing*{\section}{0pt}{1.0em}{0.5em}
+\setlist[itemize]{leftmargin=1.2em,label={\color{soft}\textbullet},itemsep=0.1em,topsep=0.2em,parsep=0pt,partopsep=0pt}
+
+\newcommand{\sep}{\,{\color{soft}\textperiodcentered}\,\allowbreak}
+% \entry{title}{dates}{organisation}{place}
+\newcommand{\entry}[4]{%
+  \begin{tabularx}{\linewidth}{@{}X r@{}}
+    \textbf{#1} & {\color{soft}#2}\\
+    \textit{#3} & {\color{soft}\small #4}
+  \end{tabularx}\par}
+\newcommand{\gap}{\vspace{0.5em}}
+
+\begin{document}
+\color{ink}
+
+\begin{center}
+  {\LARGE\bfseries Obaid Tamboli}\\[3pt]
+  {\small Gen-AI Specialist | ML Engineer}\\[3pt]
+  {\small\color{soft}\href{mailto:tamboliobaid@gmail.com}{tamboliobaid@gmail.com}\sep
+  +91 7066799011\sep
+  \href{https://www.linkedin.com/in/obaidtamboli/}{LinkedIn}\sep
+  \href{https://obaidtambo.github.io/}{obaidtambo.github.io}}
+\end{center}
+
+\section{Experience}
+\entry{Deputy Manager, AI \& Revenue Strategy}{2026 to Present}{Bennett, Coleman \& Co.\ Ltd.}{Mumbai, India}
+\begin{itemize}
+  \item Architected and deployed a multimodal layout analysis and OCR pipeline using vision and LLM architectures, automating ad category tagging for competitor market share analysis.
+  \item Built a multi-agent LLM system that uses web search to map client name variants to the same entity by consensus.
+  \item Engineered and evaluated hybrid ML and Generative AI classification models using vision-language architectures for text and visual feature extraction from multi-format ad creatives.
+  \item Led the competitor insights project, delivering real-time market share analytics, and designed and scaled automated workflows to ingest and parse print and digital ad assets.
+\end{itemize}
+\gap
+\entry{AI/ML Consultant}{2024 to 2026}{Deloitte India}{Mumbai, India}
+\begin{itemize}
+  \item Engineered and deployed a GenAI-based compliance checker (Azure Document Intelligence, LangChain, RAG) that checked company policies against regulatory requirements, reducing manual review effort by 50\%.
+  \item Tested the agents for bias toward one verdict, for stability under perturbation (reworded clauses) and for agreement with human reviewers, and calibrated them toward a conservative ``non-compliant'' lean.
+  \item Developed scalable ETL pipelines for IFRS 9 PD/ECL computations, improving data throughput by 40\%.
+  \item Implemented panel regression, logistic regression, classification and clustering for financial stress testing and segmentation, with statistical validation of deployed models under Basel/IFRS standards.
+  \item Designed MLOps pipelines with CI/CD, MLflow and Docker, cutting model deployment time by 30\%, and built BigQuery and PySpark pipelines for credit risk analytics.
+\end{itemize}
+\gap
+\entry{Data Science Intern}{2023}{Respirer Living Sciences Pvt.\ Ltd}{Pune, India}
+\begin{itemize}
+  \item Developed calibration models for low-cost sensors.
+  \item Developed time series forecasting models for real-time healthcare monitoring, improving predictive accuracy by 15\%.
+  \item Applied classification and clustering to improve anomaly detection precision by 20\% in large-scale environmental datasets, and implemented Explainable AI (SHAP, LIME).
+\end{itemize}
+
+\section{Research \& Projects}
+\entry{Pilot: model priors in LLM opinion dynamics}{Nov 2026}{\href{https://github.com/obaidtoi/whose-opinion}{github.com/obaidtoi/whose-opinion} \sep \href{https://github.com/obaidtoi/whose-opinion/blob/main/reports/pilot_report.pdf}{report (PDF)}}{}
+\begin{itemize}
+  \item Simulated networks of 16 LLM agents discussing heat pumps and an identical made-up technology, with a committed minority, and fitted the update rule $z_{t+1} = s\,z_t + a\,m_t + \beta\,b$ with bootstrap CIs.
+  \item A stance reminder in the prompt nearly froze the agents. Without it they converged toward the model's default, which favoured heat pumps over the twin ($b = 0.35$ vs.\ $0.14$). A blind re-rating of 180 posts matched the agents' own ratings (weighted $\kappa = 0.93$).
+\end{itemize}
+\gap
+\entry{AI Text Detection}{Jan 2024 to Feb 2024}{Research project}{}
+\begin{itemize}
+  \item Built a domain-adaptive self-supervised AI text detection model using PyTorch, HuggingFace, contrastive loss and MMD, generalising across domains.
+\end{itemize}
+\gap
+\entry{Mufti Chatbot}{Nov 2024 to Ongoing}{}{}
+\begin{itemize}
+  \item Fine-tuned Llama2-7B on an Islamic QA dataset, integrated a RAG pipeline with LangChain, and built a Chainlit interface deployed on Azure ML.
+\end{itemize}
+
+\section{Education}
+\entry{Data Science Engineering (Major), EECS (Minor), BS, 4 years}{2020 to 2024}{Indian Institute of Science Education and Research (IISER)}{Bhopal, Madhya Pradesh}
+{\small CGPA 8.23/10. Coursework: Linear Algebra, Multivariable Calculus, Discrete Maths, Probability \& Statistics, Machine Learning, Data Science in Practice, Computer Vision, Data Structures and Algorithms, Artificial Intelligence, Advanced Natural Language Processing.\par}
+\gap
+\entry{Higher Secondary}{2020}{Poona College}{Pune, Maharashtra}
+{\small Percentage 84.00\%\par}
+\gap
+\entry{Secondary}{2018}{Bhishops CO-ED School, Undri}{Pune, Maharashtra}
+{\small Percentage 91.40\%\par}
+
+\section{Teaching}
+\entry{Teaching Assistant, Data Science in Practice}{2023}{Indian Institute of Science Education and Research (IISER)}{Bhopal, Madhya Pradesh}
+
+\section{Technical Skills}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries}l X@{}}
+  Programming     & Python (Pandas, NumPy, Scikit-learn, PyTorch, NLTK), SQL, Java \\[1pt]
+  ML \& Statistics & Panel regression, logistic regression, classification, clustering, segmentation, time series forecasting, statistical validation, Word2Vec, BM25, SHAP, LIME \\[1pt]
+  GenAI \& Agents & LangChain, LangGraph, HuggingFace Transformers, AutoGen, Model Context Protocol, RAG, embeddings and vector DBs, cross-encoder reranking, query routing \\[1pt]
+  Cloud \& MLOps  & Azure ML, Google Vertex AI, BigQuery, PySpark, Docker, Git, CI/CD, MLflow, EvidentlyAI, Prometheus, Airflow, Prefect \\[1pt]
+  Other           & Responsible AI (bias mitigation, fairness, explainability), PowerBI, Matlab, n8n \\[1pt]
+  Certification   & Google Cloud Professional ML Engineer \\
+\end{tabularx}
+
+\end{document}
