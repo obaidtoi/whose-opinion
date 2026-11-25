@@ -1,0 +1,8 @@
+{
+  "model": "baidu/ernie-5.5-flash-preview:free",
+  "reply": {
+    "heard_of_name": false,
+    "most_likely": "an electric heat pump, most likely an air-source heat pump",
+    "confidence": 0.6
+  }
+}

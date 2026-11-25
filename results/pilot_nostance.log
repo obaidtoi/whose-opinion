@@ -1,0 +1,6 @@
+leak check: {'heard_of_name': False, 'most_likely': 'an electric heat pump, most likely an air-source heat pump', 'confidence': 0.6}
+real     f=0.000 seed=1  mean final rating=+0.81  failed=0  calls api=80 cached=7
+twin     f=0.000 seed=1  mean final rating=+0.31  failed=0  calls api=160 cached=13
+real     f=0.250 seed=1  mean final rating=+0.50  failed=0  calls api=220 cached=13
+twin     f=0.250 seed=1  mean final rating=+0.33  failed=0  calls api=280 cached=13
+done {'api': 280, 'cached': 13, 'failed': 0}

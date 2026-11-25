@@ -1,0 +1,11 @@
+leak check: {'heard_of_name': False, 'most_likely': 'an electric heat pump, most likely an air-source heat pump', 'confidence': 0.6}
+real     f=0.000 seed=1  mean final rating=+0.38  failed=0  calls api=80 cached=7
+twin     f=0.000 seed=1  mean final rating=+0.00  failed=0  calls api=160 cached=13
+real     f=0.125 seed=1  mean final rating=-0.14  failed=0  calls api=230 cached=13
+twin     f=0.125 seed=1  mean final rating=-0.14  failed=0  calls api=300 cached=13
+real     f=0.250 seed=1  mean final rating=-0.50  failed=0  calls api=360 cached=13
+twin     f=0.250 seed=1  mean final rating=-0.25  failed=0  calls api=420 cached=13
+real     f=0.375 seed=1  mean final rating=-0.30  failed=0  calls api=470 cached=13
+twin     f=0.375 seed=1  mean final rating=-0.10  failed=0  calls api=520 cached=13
+synonym  f=0.000 seed=1  mean final rating=+0.00  failed=0  calls api=600 cached=19
+done {'api': 600, 'cached': 19, 'failed': 0}

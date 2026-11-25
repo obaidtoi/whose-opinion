@@ -1,0 +1,18 @@
+__pycache__/
+*.py[oc]
+build/
+dist/
+*.egg-info
+.venv
+
+# secrets
+.env
+
+# personal documents and private drafts
+Obaid_*.pdf
+drafts/
+
+# raw API cache and scratch outputs
+results/cache/
+results/test/
+results/smoke.jsonl

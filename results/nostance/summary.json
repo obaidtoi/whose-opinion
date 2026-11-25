@@ -1,0 +1,142 @@
+{
+  "model": "baidu/ernie-5.5-flash-preview:free",
+  "n_agents": 16,
+  "rounds": 5,
+  "seeds": [
+    1
+  ],
+  "f_levels": [
+    0.0,
+    0.25
+  ],
+  "total_calls": 280,
+  "failed_calls": 0,
+  "leak_check": {
+    "heard_of_name": false,
+    "most_likely": "an electric heat pump, most likely an air-source heat pump",
+    "confidence": 0.6
+  },
+  "fit": {
+    "real": {
+      "s": 0.47834721088768967,
+      "a": 0.19118070756192146,
+      "beta": 0.33047208155038893,
+      "b": 0.35452723102082273,
+      "k": 0.1171613520017469,
+      "r2": 0.5816269910004135,
+      "n_transitions": 140,
+      "ci": {
+        "s": [
+          0.41168458645960215,
+          0.542257419922623
+        ],
+        "a": [
+          0.06346747863425524,
+          0.3059463296998223
+        ],
+        "beta": [
+          0.2033088918528854,
+          0.47619368718482213
+        ],
+        "b": [
+          0.27006025361331637,
+          0.4761650977403288
+        ]
+      }
+    },
+    "twin": {
+      "s": 0.5270967830948705,
+      "a": -0.011428517209006894,
+      "beta": 0.4843317341141364,
+      "b": 0.14249767425487792,
+      "k": 0.06901614567909635,
+      "r2": 0.5503350028269172,
+      "n_transitions": 140,
+      "ci": {
+        "s": [
+          0.4188922093992715,
+          0.6045679064378586
+        ],
+        "a": [
+          -0.1560286688979646,
+          0.14072541359936175
+        ],
+        "beta": [
+          0.3288618567141849,
+          0.6736198540896421
+        ],
+        "b": [
+          0.07609440629031151,
+          0.2309255637165111
+        ]
+      }
+    },
+    "synonym": null
+  },
+  "final_mean": {
+    "real": {
+      "0.0": 0.2708333333333333,
+      "0.25": 0.16666666666666666
+    },
+    "twin": {
+      "0.0": 0.10416666666666666,
+      "0.25": 0.1111111111111111
+    },
+    "synonym": {}
+  },
+  "linear_pred_final_mean": {
+    "real": {
+      "0.0": 0.3041020706012284,
+      "0.25": 0.1692527949099998
+    },
+    "twin": {
+      "0.0": 0.1356757194078938,
+      "0.25": 0.14018023497451734
+    }
+  },
+  "fc": {
+    "real": {
+      "predicted": 0.6128304131513874,
+      "observed": null,
+      "observed_note": ">0.25 (no flip in tested range)"
+    },
+    "twin": {
+      "predicted": null,
+      "observed": null,
+      "observed_note": ">0.25 (no flip in tested range)"
+    }
+  },
+  "polarisation": {
+    "real": {
+      "0.0": {
+        "sd": 0.1301041249666333,
+        "split": 0.0
+      },
+      "0.25": {
+        "sd": 0.2545875386086578,
+        "split": 0.16666666666666666
+      }
+    },
+    "twin": {
+      "0.0": {
+        "sd": 0.1545041351478263,
+        "split": 0.0
+      },
+      "0.25": {
+        "sd": 0.15713484026367722,
+        "split": 0.0
+      }
+    },
+    "synonym": {}
+  },
+  "delta": {
+    "b": 0.21202955676594482,
+    "fc_predicted": null,
+    "fc_observed": null
+  },
+  "figures": {
+    "trajectories": "results/nostance/figures/trajectories.png",
+    "tipping": "results/nostance/figures/tipping_curve.png",
+    "params": "results/nostance/figures/params.png"
+  }
+}
